@@ -1,15 +1,18 @@
 # 🚀 FastAPI Items Manager
 
-A simple yet powerful FastAPI application for managing items with interactive endpoints.
+A production-ready FastAPI application for managing items with Pydantic validation, interactive endpoints, and comprehensive API documentation.
 
 ## ✨ Features
 
-- ✅ Create and manage items
-- ✅ Retrieve items by ID
-- ✅ Interactive API documentation
-- ✅ Fast and modern Python web framework
+- ✅ **Pydantic Models** - Strong data validation with type hints
+- ✅ **CRUD Operations** - Create, Read, Update, Delete items
+- ✅ **Field Validation** - Constraints on name, description, and price
+- ✅ **Interactive API Docs** - Swagger UI and ReDoc
+- ✅ **Error Handling** - Proper HTTP status codes and error messages
+- ✅ **RESTful Design** - Following REST API best practices
+- ✅ **Fast Performance** - Async support with modern Python
 
-## 📋 Endpoints
+## 📋 API Endpoints
 
 ### 🏠 Root Endpoint
 ```
@@ -18,25 +21,60 @@ GET /
 **Response:**
 ```json
 {
-  "Hello": "Rahul"
+  "message": "Welcome to Items Manager API",
+  "author": "Rahul"
 }
 ```
 
 ### ➕ Create Item
 ```
-POST /items?item={item_name}
+POST /items
 ```
-**Parameters:**
-- `item` (string): The name of the item to add
+**Request Body:**
+```json
+{
+  "name": "Apple",
+  "description": "Fresh red apple",
+  "price": 1.99
+}
+```
+**Validation Rules:**
+- `name` (required): String, 1-100 characters
+- `description` (optional): String, max 500 characters
+- `price` (optional): Float, must be ≥ 0
 
 **Example:**
 ```bash
-curl -X POST "http://localhost:8000/items?item=apple"
+curl -X POST "http://localhost:8000/items" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Apple",
+    "description": "Fresh red apple",
+    "price": 1.99
+  }'
 ```
 
 **Response:**
 ```json
-["apple"]
+[
+  {
+    "name": "Apple",
+    "description": "Fresh red apple",
+    "price": 1.99
+  }
+]
+```
+
+### 📦 Get All Items
+```
+GET /items?limit=10
+```
+**Parameters:**
+- `limit` (optional): Maximum number of items to return (default: 10)
+
+**Example:**
+```bash
+curl "http://localhost:8000/items?limit=5"
 ```
 
 ### 📦 Get Item by ID
@@ -53,7 +91,62 @@ curl "http://localhost:8000/items/0"
 
 **Response:**
 ```json
-"apple"
+{
+  "id": 0,
+  "item": {
+    "name": "Apple",
+    "description": "Fresh red apple",
+    "price": 1.99
+  }
+}
+```
+
+### ✏️ Update Item
+```
+PUT /items/{item_id}
+```
+**Parameters:**
+- `item_id` (integer): The index of the item to update
+
+**Request Body:**
+```json
+{
+  "name": "Green Apple",
+  "description": "Fresh green apple",
+  "price": 2.49
+}
+```
+
+**Example:**
+```bash
+curl -X PUT "http://localhost:8000/items/0" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Green Apple",
+    "description": "Fresh green apple",
+    "price": 2.49
+  }'
+```
+
+### 🗑️ Delete Item
+```
+DELETE /items/{item_id}
+```
+**Parameters:**
+- `item_id` (integer): The index of the item to delete
+
+**Example:**
+```bash
+curl -X DELETE "http://localhost:8000/items/0"
+```
+
+**Response:**
+```json
+{
+  "message": "Item deleted",
+  "deleted_item": { ... },
+  "remaining_items": 0
+}
 ```
 
 ## 🛠️ Installation & Setup
@@ -78,7 +171,7 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 3. **Install dependencies**
 ```bash
-pip install fastapi uvicorn
+pip install fastapi uvicorn pydantic
 ```
 
 ## 🚀 Running the Server
@@ -92,65 +185,121 @@ The server will start at `http://localhost:8000`
 ## 📚 Interactive Documentation
 
 Once the server is running, visit:
-- **Swagger UI** → `http://localhost:8000/docs`
-- **ReDoc** → `http://localhost:8000/redoc`
+- **Swagger UI** → `http://localhost:8000/docs` - Interactive testing interface
+- **ReDoc** → `http://localhost:8000/redoc` - Beautiful API reference
 
-## 🧪 Test the API
+## 🧪 Testing the API
 
-### Try in Swagger UI
+### Using Swagger UI (Recommended)
 1. Go to `http://localhost:8000/docs`
 2. Click on each endpoint to expand
 3. Click "Try it out" button
 4. Enter parameters and click "Execute"
 
-### Try with cURL
+### Using cURL
 
+**Create items:**
 ```bash
-# Get root
-curl http://localhost:8000/
+curl -X POST "http://localhost:8000/items" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Apple", "description": "Fresh red apple", "price": 1.99}'
 
-# Add items
-curl -X POST "http://localhost:8000/items?item=apple"
-curl -X POST "http://localhost:8000/items?item=banana"
-curl -X POST "http://localhost:8000/items?item=orange"
-
-# Get items by index
-curl http://localhost:8000/items/0
-curl http://localhost:8000/items/1
-curl http://localhost:8000/items/2
-
-# Get non-existent item (404 error)
-curl http://localhost:8000/items/99
+curl -X POST "http://localhost:8000/items" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Banana", "description": "Yellow banana", "price": 0.99}'
 ```
 
-## 📝 Example Usage
+**Get all items:**
+```bash
+curl http://localhost:8000/items
+```
 
+**Get item by ID:**
+```bash
+curl http://localhost:8000/items/0
+```
+
+**Update item:**
+```bash
+curl -X PUT "http://localhost:8000/items/0" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Green Apple", "description": "Fresh green apple", "price": 2.49}'
+```
+
+**Delete item:**
+```bash
+curl -X DELETE "http://localhost:8000/items/0"
+```
+
+### Using Python requests
 ```python
-# Using Python requests
 import requests
 
 # Create an item
-response = requests.post("http://localhost:8000/items?item=apple")
-print(response.json())  # ["apple"]
+response = requests.post(
+    "http://localhost:8000/items",
+    json={"name": "Apple", "description": "Fresh red apple", "price": 1.99}
+)
+print(response.json())
 
 # Get item
 response = requests.get("http://localhost:8000/items/0")
-print(response.json())  # "apple"
+print(response.json())
 ```
 
-## 🐛 Error Handling
+### Running Tests
+```bash
+python test_api.py
+```
 
-- **Item not found**: Returns `404` status code with message "Item not found"
-- Invalid request: Returns appropriate HTTP error codes
+## 📊 Data Models
 
-## 📦 Project Structure
+### Item Model
+| Field | Type | Required | Constraints |
+|-------|------|----------|-------------|
+| name | string | Yes | 1-100 characters |
+| description | string | No | Max 500 characters |
+| price | float | No | Must be ≥ 0 |
+
+## 🚨 Error Handling
+
+The API returns appropriate HTTP status codes:
+- `200 OK` - Successful request
+- `404 Not Found` - Item not found
+- `422 Unprocessable Entity` - Validation error (invalid data)
+- `500 Internal Server Error` - Server error
+
+### Example Error Response
+```json
+{
+  "detail": [
+    {
+      "type": "value_error.number.not_ge",
+      "loc": ["body", "price"],
+      "msg": "ensure this value is greater than or equal to 0",
+      "input": -5.99
+    }
+  ]
+}
+```
+
+## 📄 Project Files
 
 ```
 FAST_API/
-├── main.py           # Main FastAPI application
-├── README.md         # This file
-└── .venv/            # Virtual environment
+├── main.py                    # FastAPI application with Pydantic models
+├── test_api.py               # API test suite
+├── README.md                 # This file
+├── VALIDATION_REPORT.md      # Comprehensive validation report
+└── .venv/                    # Virtual environment
 ```
+
+## ✨ Key Technologies
+
+- **FastAPI** - Modern async web framework for Python
+- **Pydantic** - Data validation using Python type annotations
+- **Uvicorn** - Lightning-fast ASGI web server
+- **Python 3.13** - Latest Python version support
 
 ## 🤝 Contributing
 
