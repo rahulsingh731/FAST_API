@@ -15,14 +15,15 @@ class Item(BaseModel):
     description: str = Field(default="", max_length=500, description="Item description")
     price: float = Field(default=0.0, ge=0, description="Item price")
 
-    class Config:
-        schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "example": {
                 "name": "Apple",
                 "description": "Fresh red apple",
                 "price": 1.99
             }
         }
+    }
 
 
 class ItemResponse(BaseModel):
@@ -30,8 +31,8 @@ class ItemResponse(BaseModel):
     id: int
     item: Item
 
-    class Config:
-        schema_extra = {
+    model_config = {
+        "json_schema_extra": {
             "example": {
                 "id": 0,
                 "item": {
@@ -41,6 +42,7 @@ class ItemResponse(BaseModel):
                 }
             }
         }
+    }
 
 
 # In-memory storage
